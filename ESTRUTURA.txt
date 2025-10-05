@@ -1,0 +1,216 @@
+# PREMISSAS PARA NOVOS DESENVOLVIMENTOS - AGROFLOW PENHA
+
+## 1. ESTRUTURA DOS HOOKS
+
+### 1.1 Padrão de Nomenclatura
+- Usar prefixo "use" seguido do nome do recurso (ex: useEquipamentos, useLogs, useSecadores)
+- Nomes em português brasileiro para manter consistência com o projeto
+- Nomes descritivos que indiquem claramente a funcionalidade
+
+### 1.2 Estrutura Padrão dos Hooks
+```typescript
+export const useNomeRecurso = (parametros?: any) => {
+  // Estados padrão
+  const [dados, setDados] = useState<TipoDados[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Função de carregamento
+  const carregarDados = useCallback(async () => {
+    // Lógica de carregamento
+  }, [dependencias]);
+
+  // useEffect para carregamento inicial
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  return { dados, loading, error, funcoes };
+};
+```
+
+## 2. CONFIGURAÇÃO DE API
+
+### 2.1 Endpoints Base
+- URL base: `http://10.99.2.68:1880/`
+- Manter consistência nos endpoints REST
+- Usar padrão: `/recurso/` para listagem, `/recurso/:id` para item específico
+
+### 2.2 Tratamento de Erros
+- Sempre implementar try-catch
+- Usar setError para capturar mensagens de erro
+- Logs de console para debugging (ex: `[useNomeHook] Mensagem`)
+- Mensagens de erro em português brasileiro
+
+## 3. ESTADOS E GERENCIAMENTO
+
+### 3.1 Estados Padrão
+- `dados`: array ou objeto principal
+- `loading`: boolean para indicar carregamento
+- `error`: string | null para mensagens de erro
+
+### 3.2 Atualizações em Tempo Real
+- Implementar intervalos de atualização quando necessário
+- Usar setInterval com cleanup adequado
+- Frequências recomendadas:
+  - Dados críticos: 1 segundo
+  - Dados operacionais: 5 segundos
+  - Dados de histórico: 10 segundos
+
+## 4. TIPAGEM E INTERFACES
+
+### 4.1 Estrutura das Interfaces
+```typescript
+interface Recurso {
+  id: number;
+  codigo: string;
+  nome: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  // campos específicos do recurso
+}
+```
+
+### 4.2 Padrões de Tipagem
+- Sempre definir interfaces para estruturas de dados
+- Usar tipos union para status (ex: 'normal' | 'warning' | 'critical')
+- Incluir campos de timestamp para auditoria
+- Usar tipos opcionais (?) para campos que podem não existir
+
+## 5. FUNÇÕES E UTILIDADES
+
+### 5.1 Funções de Carregamento
+- Nome: `carregarNomeRecurso` ou `fetchNomeRecurso`
+- Usar useCallback para otimização
+- Implementar logs de console para debugging
+- Validação de resposta da API
+
+### 5.2 Funções de Atualização
+- Nome: `atualizarNomeRecurso`
+- Implementar atualização local do estado
+- Tratamento de erro adequado
+- Retornar Promise para controle de fluxo
+
+## 6. PERFORMANCE E OTIMIZAÇÃO
+
+### 6.1 useCallback e useMemo
+- Usar useCallback para funções que são passadas como props
+- Usar useMemo para cálculos complexos
+- Evitar recriações desnecessárias de objetos/funções
+
+### 6.2 Cleanup e Memory Leaks
+- Sempre implementar cleanup em useEffect
+- Limpar intervalos e timeouts
+- Verificar se componente está montado antes de atualizar estado
+
+## 7. LOGS E DEBUGGING
+
+### 7.1 Padrão de Logs
+```typescript
+console.log(`[useNomeHook] Mensagem: ${valor}`);
+console.error('[useNomeHook] Erro:', erro);
+```
+
+### 7.2 Informações de Debug
+- Logs de início de operações
+- Logs de resposta da API
+- Logs de quantidade de dados recebidos
+- Logs de erros com contexto
+
+## 8. EXEMPLOS DE IMPLEMENTAÇÃO
+
+### 8.1 Hook Simples (Sem Atualização Automática)
+```typescript
+export const useNomeRecurso = (id: number) => {
+  const [dados, setDados] = useState<Recurso | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/recurso/${id}`);
+        setDados(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Erro ao carregar dados');
+        console.error('[useNomeRecurso] Erro:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) carregarDados();
+  }, [id]);
+
+  return { dados, loading, error };
+};
+```
+
+### 8.2 Hook com Atualização Automática
+```typescript
+export const useNomeRecursoTempoReal = () => {
+  const [dados, setDados] = useState<Recurso[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const carregarDados = useCallback(async () => {
+    try {
+      const response = await axios.get('/recurso/');
+      setDados(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar dados');
+      console.error('[useNomeRecursoTempoReal] Erro:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarDados();
+    const interval = setInterval(carregarDados, 5000);
+    return () => clearInterval(interval);
+  }, [carregarDados]);
+
+  return { dados, loading, error };
+};
+```
+
+## 9. REGRAS DE VALIDAÇÃO
+
+### 9.1 Validação de Dados
+- Verificar se response.data é array quando esperado
+- Validar estrutura dos dados recebidos
+- Tratar casos de dados vazios ou nulos
+
+### 9.2 Tratamento de Respostas
+- Sempre verificar se response.ok (fetch) ou status 200 (axios)
+- Implementar fallbacks para dados ausentes
+- Tratar diferentes formatos de resposta da API
+
+## 10. MANUTENÇÃO E EVOLUÇÃO
+
+### 10.1 Documentação
+- Comentar funções complexas
+- Documentar parâmetros e retornos
+- Manter exemplos de uso atualizados
+
+### 10.2 Testes
+- Implementar testes unitários para hooks
+- Testar casos de erro e sucesso
+- Validar comportamento com dados reais
+
+### 10.3 Refatoração
+- Identificar código duplicado entre hooks
+- Criar hooks base reutilizáveis
+- Manter consistência na evolução do código
+
+---
+*Documento criado com base nos hooks existentes: useEquipamentos, useLogs, useSecadores, useSilos, useStatus*
+*Última atualização: [DATA ATUAL]*
+
+
+
