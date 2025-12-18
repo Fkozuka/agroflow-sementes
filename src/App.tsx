@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import ListaProducao from "./pages/ListaProducao";
+import Producao from "./pages/Producao";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthProvider } from "./hooks/use-auth";
@@ -30,11 +30,12 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            
             <Route 
-              path="/lista-producao" 
+              path="/producao" 
               element={
                 <ProtectedRoute>
-                  <ListaProducao />
+                  <Producao />
                 </ProtectedRoute>
               } 
             />

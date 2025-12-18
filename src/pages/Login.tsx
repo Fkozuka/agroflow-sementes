@@ -16,12 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useLogin } from "@/hooks/uselogin";
 
 const formSchema = z.object({
   username: z.string().min(3, {
     message: "Nome de usuário deve ter pelo menos 3 caracteres.",
   }),
-  password: z.string().min(6, {
+  password: z.string().min(3, {
     message: "Senha deve ter pelo menos 6 caracteres.",
   }),
 });
@@ -29,6 +30,7 @@ const formSchema = z.object({
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { dadosAutenticacao, loading, error, autenticarLogin } = useLogin();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,44 +40,33 @@ const Login = () => {
     },
   });
 
-  // Adicione esta lista de usuários no início do componente (antes do handleSubmit)
-  const users = [
-    { username: "admin", password: "admin123" },
-    { username: "585696", password: "585696" },
-    { username: "569856", password: "569856" },
-    { username: "809755", password: "809755" },
-    { username: "508717", password: "508717" },
-    { username: "812901", password: "812901" },
-    { username: "810321", password: "810321" },
-    { username: "573918", password: "573918" },
-    { username: "591938", password: "591938" },
-    { username: "570135", password: "570135" },
-    { username: "523262", password: "523262" },
-    { username: "588017", password: "588017" }, // JEAN 
-    // Adicione mais usuários conforme necessário
-  ];
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Substitua o trecho de validação do login por este:
-    const userFound = users.find(
-      (user) => user.username === values.username && user.password === values.password
-    );
-
-    if (userFound) {
-      // Salva o estado de autenticação (em um app real, armazene um token)
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userName", values.username);
-
-      toast({
-        title: "Login bem-sucedido",
-        description: "Bem-vindo ao AgroFlow Sementes!",
-      });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const authData = await autenticarLogin(values.username, values.password);
       
-      navigate("/");
-    } else {
+      // Verifica se a autenticação foi bem-sucedida usando os dados retornados diretamente
+      if (authData && authData.length > 0 && authData[0].status === true) {
+        // Salva o estado de autenticação
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userName", values.username);
+
+        toast({
+          title: "Login bem-sucedido",
+          description: "Bem-vindo ao AgroFlow Sementes!",
+        });
+        
+        navigate("/");
+      } else {
+        toast({
+          title: "Erro no login",
+          description: "Usuário ou senha inválidos.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
       toast({
         title: "Erro no login",
-        description: "Usuário ou senha inválidos.",
+        description: error || "Erro ao conectar com o servidor.",
         variant: "destructive",
       });
     }
@@ -146,9 +137,10 @@ const Login = () => {
               <Button 
                 type="submit" 
                 className="w-full bg-industrial-primary hover:bg-industrial-primary/90"
+                disabled={loading}
               >
                 <LogIn className="mr-2 h-4 w-4" />
-                Entrar
+                {loading ? "Autenticando..." : "Entrar"}
               </Button>
             </div>
           </form>

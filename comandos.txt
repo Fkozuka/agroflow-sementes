@@ -1,3 +1,0 @@
-Você pode executar
-npm run dev ou bun dev para desenvolvimento
-npm run build ou bun run build para build de produção
