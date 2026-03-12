@@ -62,6 +62,10 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
 }) => {
   const { toast } = useToast();
   
+  const tipoUsuario = typeof window !== 'undefined' ? localStorage.getItem('tipo_usuario') : null;
+  const podeManipular =
+    tipoUsuario === 'admin' || tipoUsuario === 'operador';
+  
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -601,7 +605,8 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
                                   <Button 
                                     size="sm" 
                                     className="bg-blue-600 hover:bg-blue-700 text-white"
-                                    onClick={() => handleIniciarSeparacao(item)}
+                                    onClick={() => podeManipular && handleIniciarSeparacao(item)}
+                                    disabled={!podeManipular}
                                   >
                                     <Package className="h-4 w-4 mr-2" />
                                     Iniciar Separação
@@ -609,7 +614,8 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
                                   <Button 
                                     size="sm" 
                                     className="bg-green-600 hover:bg-green-700 text-white"
-                                    onClick={() => handleIniciarProducao(item)}
+                                    onClick={() => podeManipular && handleIniciarProducao(item)}
+                                    disabled={!podeManipular}
                                   >
                                     <Play className="h-4 w-4 mr-2" />
                                     Iniciar Produção
@@ -618,7 +624,9 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
                                     size="sm" 
                                     variant="outline"
                                     className="border-gray-300 hover:bg-gray-50"
+                                    disabled={!podeManipular}
                                     onClick={async (e) => {
+                                      if (!podeManipular) return;
                                       e.stopPropagation();
                                       try {
                                         const resultado = await carregarStatusComandos(String(item?.numPlanej ?? ''), '3');
@@ -640,7 +648,8 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
                                     size="sm" 
                                     variant="outline"
                                     className="border-red-300 text-red-600 hover:bg-red-50"
-                                    onClick={() => handleExcluirProducao(item)}
+                                    onClick={() => podeManipular && handleExcluirProducao(item)}
+                                    disabled={!podeManipular}
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     Excluir

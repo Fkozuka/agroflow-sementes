@@ -49,6 +49,9 @@ const Login = () => {
         // Salva o estado de autenticação
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userName", values.username);
+        if (authData[0].tipo_usuario) {
+          localStorage.setItem("tipo_usuario", String(authData[0].tipo_usuario));
+        }
 
         toast({
           title: "Login bem-sucedido",
