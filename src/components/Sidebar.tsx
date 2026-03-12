@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 
 const sidebarItems = [
-  { name: 'Dashboard', icon: Gauge, path: '/' },
   { name: 'Produção', icon: Factory, path: '/producao' },
   { name: 'Armazenamento', icon: Database, path: '/armazenamento' },
   { name: 'Relatórios', icon: BarChart, path: '/relatorios' },

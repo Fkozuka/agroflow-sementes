@@ -4,8 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
 import Producao from "./pages/Producao";
+import Armazenamento from "./pages/Armazenamento";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthProvider } from "./hooks/use-auth";
@@ -26,16 +26,23 @@ const App = () => (
               path="/" 
               element={
                 <ProtectedRoute>
-                  <Index />
+                  <Producao />
                 </ProtectedRoute>
               } 
             />
-            
             <Route 
               path="/producao" 
               element={
                 <ProtectedRoute>
                   <Producao />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/armazenamento" 
+              element={
+                <ProtectedRoute>
+                  <Armazenamento />
                 </ProtectedRoute>
               } 
             />

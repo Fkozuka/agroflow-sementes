@@ -157,28 +157,34 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case '1': // Programada
-        return 'bg-blue-100 text-blue-800';
-      case '2': // Separaçao
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Pendente':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Cancelada':
-        return 'bg-red-100 text-red-800';
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-100 hover:text-gray-800';
+      case '2': // Em separação
+        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800';
+      case '3': // Separado
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-100 hover:text-blue-800';
+      case '4': // Produzindo
+        return 'bg-green-100 text-green-800 hover:bg-green-100 hover:text-green-800';
+      case '5': // produzido
+        return 'bg-green-100 text-green-800 hover:bg-green-100 hover:text-green-800';
+      case '6': // Integrado
+        return 'bg-purple-100 text-purple-800 hover:bg-purple-100 hover:text-purple-800';
+      case '7': // Eliminado
+        return 'bg-red-100 text-red-800 hover:bg-red-100 hover:text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-100 hover:text-gray-800';
     }
   };
 
   const getPrioridadeColor = (prioridade: string) => {
     switch (prioridade) {
       case 'Alta':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 hover:bg-red-100 hover:text-red-800';
       case 'Média':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800';
       case 'Baixa':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 hover:bg-green-100 hover:text-green-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-100 hover:text-gray-800';
     }
   };
 
@@ -190,7 +196,7 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
 
   const confirmarIniciarProducao = async () => {
     try {
-      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '1');
+      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '2');
       if (resultado && resultado.statusErro === true) {
         toast({
           title: 'Falha ao iniciar produção',
@@ -224,7 +230,7 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
 
   const confirmarIniciarSeparacao = async () => {
     try {
-      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '2');
+      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '1');
       if (resultado && resultado.statusErro === true) {
         toast({
           title: 'Falha ao iniciar separação',

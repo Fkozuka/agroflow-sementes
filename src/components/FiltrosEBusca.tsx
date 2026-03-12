@@ -70,12 +70,12 @@ const FiltrosEBusca: React.FC<FiltrosEBuscaProps> = ({
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-industrial-primary"
             >
               <option value="Todos">Todos os Status</option>
-              <option value="Programada">Programada</option>
-              <option value="Separação">Separação</option>
-              <option value="Pendente">Pendente</option>
-              <option value="Cancelada">Cancelada</option>
-              <option value="Em Produção">Em Produção</option>
-              <option value="Concluída">Concluída</option>
+              <option value="Programado">Programado</option>
+              <option value="Em separação">Em separação</option>
+              <option value="Separado">Separado</option>
+              <option value="Produzindo">Produzindo</option>
+              <option value="Integrado">Integrado</option>
+              <option value="Eliminado">Eliminado</option>
             </select>
           </div>
         </div>
