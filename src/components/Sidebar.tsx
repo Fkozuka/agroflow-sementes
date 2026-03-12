@@ -8,10 +8,8 @@ import { useStatusCLP } from '@/hooks/useStatusCLP';
 const sidebarItems = [
   { name: 'Dashboard', icon: Gauge, path: '/' },
   { name: 'Produção', icon: Factory, path: '/producao' },
-  { name: 'Estoque de Sementes', icon: Package, path: '/estoque' },
   { name: 'Armazenamento', icon: Database, path: '/armazenamento' },
   { name: 'Relatórios', icon: BarChart, path: '/relatorios' },
-  { name: 'Configurações', icon: Settings, path: '/configuracoes' },
 ];
 
 const Sidebar = () => {
