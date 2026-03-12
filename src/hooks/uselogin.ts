@@ -4,6 +4,7 @@ import axios from 'axios';
 // GET PARA RECEBER STATUS AUTENTICAÇÃO
 interface dadosAutenticacao {
     status: boolean;
+    tipo_usuario: string;
 }
 
 /**
@@ -32,8 +33,12 @@ export const useLogin = () => {
         });
         
         if (Array.isArray(response.data)) {
-          setDadosAutenticacao(response.data);
-          return response.data; // Retorna os dados para verificação imediata
+          const dadosNormalizados: dadosAutenticacao[] = response.data.map((item: any) => ({
+            ...item,
+            tipo_usuario: String(item?.tipo_usuario ?? '')
+          }));
+          setDadosAutenticacao(dadosNormalizados);
+          return dadosNormalizados; // Retorna os dados para verificação imediata
         } else {
           setError('Formato de dados inválido');
           return null;
