@@ -76,7 +76,6 @@ export const useListaEnergiaOnline = () => {
 
           energia_ativa_consumida: toNumberOrNull(item?.energia_ativa_consumida),
         }));
-
         setDadosEnergiaOnline(normalized);
       } else {
         setError('Formato de dados inválido');

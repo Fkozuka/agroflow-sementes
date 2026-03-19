@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,6 +95,7 @@ const ExpectedRangeProgress = ({
 
 const Energia = () => {
   const { dadosEnergiaOnline, loading, error } = useListaEnergiaOnline();
+  const navigate = useNavigate();
 
   const energiaById = React.useMemo(() => {
     const map = new Map<number, EnergiaMaquinaOnline>();
@@ -189,7 +191,15 @@ const Energia = () => {
                   return (
                     <Card
                       key={maquina.maquina_id}
-                      className="border border-industrial-primary/20"
+                      className="border border-industrial-primary/20 cursor-pointer hover:shadow-md transition-shadow"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/energia-historico/${maquina.maquina_id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          navigate(`/energia-historico/${maquina.maquina_id}`);
+                        }
+                      }}
                     >
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-base font-semibold">

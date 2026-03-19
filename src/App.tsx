@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Producao from "./pages/Producao";
 import Armazenamento from "./pages/Armazenamento";
 import Energia from "./pages/Energia";
+import EnergiaHistorico from "./pages/EnergiaHistorico";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthProvider } from "./hooks/use-auth";
@@ -54,6 +55,22 @@ const App = () => (
                   <Energia />
                 </ProtectedRoute>
               } 
+            />
+            <Route
+              path="/energia-historico"
+              element={
+                <ProtectedRoute>
+                  <EnergiaHistorico />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/energia-historico/:maquinaId"
+              element={
+                <ProtectedRoute>
+                  <EnergiaHistorico />
+                </ProtectedRoute>
+              }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
