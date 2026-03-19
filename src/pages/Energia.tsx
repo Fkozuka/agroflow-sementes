@@ -6,41 +6,26 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Clock, Gauge, Droplets, Zap } from 'lucide-react';
-
-type EnergiaMaquinaOnline = {
-  maquina_id: number;
-  empresa: string;
-  unidade: string;
-  data_hora: string; // TIMESTAMP (ISO string)
-
-  // Tensão (V)
-  tensao_fase_a: number | null;
-  tensao_fase_b: number | null;
-  tensao_fase_c: number | null;
-
-  // Corrente (A)
-  corrente_fase_a: number | null;
-  corrente_fase_b: number | null;
-  corrente_fase_c: number | null;
-
-  // Potências (kW / kVA)
-  potencia_ativa_total: number | null;
-  potencia_aparente_total: number | null;
-
-  // Energia (kWh)
-  energia_ativa_consumida: number | null;
-};
+import { useListaEnergiaOnline, type EnergiaMaquinaOnline } from '@/hooks/useEnergiaOnline';
 
 const formatDateTime = (value: string) => {
+  if (!value) return '—';
+
+  // O servidor envia ISO com `Z` (UTC). Para manter o mesmo instante,
+  // exibimos em UTC e com formato mais legível.
   const dt = new Date(value);
   if (Number.isNaN(dt.getTime())) return value;
-  return dt.toLocaleString('pt-BR', {
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'UTC',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-  });
+    second: '2-digit',
+    hour12: false,
+  }).format(dt);
 };
 
 const formatNumber = (value: number | null, decimals: number) => {
@@ -107,56 +92,51 @@ const ExpectedRangeProgress = ({
   );
 };
 
-const maquinasOnlineMock: EnergiaMaquinaOnline[] = Array.from({ length: 18 }).map(
-  (_, index) => {
+const Energia = () => {
+  const { dadosEnergiaOnline, loading, error } = useListaEnergiaOnline();
+
+  const energiaById = React.useMemo(() => {
+    const map = new Map<number, EnergiaMaquinaOnline>();
+    for (const item of dadosEnergiaOnline) {
+      if (item && Number.isFinite(item.maquina_id)) {
+        map.set(item.maquina_id, item);
+      }
+    }
+    return map;
+  }, [dadosEnergiaOnline]);
+
+  const maxPotenciaAtivaMock = Math.max(
+    1,
+    ...dadosEnergiaOnline.map((m) => m.potencia_ativa_total ?? 0)
+  );
+  const maxPotenciaAparenteMock = Math.max(
+    1,
+    ...dadosEnergiaOnline.map((m) => m.potencia_aparente_total ?? 0)
+  );
+
+  const maquinas = Array.from({ length: 18 }).map((_, index) => {
     const maquinaId = index + 1;
+    const found = energiaById.get(maquinaId);
 
-    // Mock determinístico: valores variam com o ID da máquina.
-    const tensaoA = 220 + (maquinaId % 5) * 0.4;
-    const tensaoB = 221 + (maquinaId % 4) * 0.5;
-    const tensaoC = 219 + (maquinaId % 3) * 0.6;
-
-    const correnteA = 10.2 + (maquinaId % 6) * 0.3;
-    const correnteB = 10.0 + (maquinaId % 5) * 0.25;
-    const correnteC = 9.8 + (maquinaId % 4) * 0.28;
-
-    const potenciaAtiva = 5.2 + (maquinaId % 7) * 0.35; // kW
-    const potenciaAparente = 6.0 + (maquinaId % 7) * 0.4; // kVA
-
-    const energiaConsumida = 1.234 + (maquinaId % 9) * 0.087; // kWh
+    if (found) return found;
 
     return {
       maquina_id: maquinaId,
-      empresa: 'AgroFlow Sementes',
-      unidade: `Unidade ${((maquinaId - 1) % 3) + 1}`,
-      data_hora: new Date(Date.now() - maquinaId * 60_000).toISOString(),
-
-      tensao_fase_a: tensaoA,
-      tensao_fase_b: tensaoB,
-      tensao_fase_c: tensaoC,
-
-      corrente_fase_a: correnteA,
-      corrente_fase_b: correnteB,
-      corrente_fase_c: correnteC,
-
-      potencia_ativa_total: potenciaAtiva,
-      potencia_aparente_total: potenciaAparente,
-
-      energia_ativa_consumida: energiaConsumida,
+      empresa: '',
+      unidade: '',
+      data_hora: '',
+      tensao_fase_a: null,
+      tensao_fase_b: null,
+      tensao_fase_c: null,
+      corrente_fase_a: null,
+      corrente_fase_b: null,
+      corrente_fase_c: null,
+      potencia_ativa_total: null,
+      potencia_aparente_total: null,
+      energia_ativa_consumida: null,
     };
-  }
-);
+  });
 
-const maxPotenciaAtivaMock = Math.max(
-  ...maquinasOnlineMock.map((m) => m.potencia_ativa_total ?? 0),
-  1
-);
-const maxPotenciaAparenteMock = Math.max(
-  ...maquinasOnlineMock.map((m) => m.potencia_aparente_total ?? 0),
-  1
-);
-
-const Energia = () => {
   return (
     <div className="h-screen flex flex-col">
       <Header />
@@ -168,9 +148,17 @@ const Energia = () => {
               Monitoramento de consumo de Energia (Conela)
             </h2>
 
+            {error ? (
+              <p className="text-sm text-red-600 mb-4">{error}</p>
+            ) : loading ? (
+              <p className="text-sm text-muted-foreground mb-4">
+                Carregando dados de energia...
+              </p>
+            ) : null}
+
             <TooltipProvider delayDuration={0}>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {maquinasOnlineMock.map((maquina) => {
+                {maquinas.map((maquina) => {
                   const isOnline =
                     maquina.tensao_fase_a !== null ||
                     maquina.corrente_fase_a !== null ||
@@ -247,10 +235,10 @@ const Energia = () => {
                               <div className="cursor-help w-full">
                                 <ExpectedRangeProgress
                                   value={tensaoMediaValue}
-                                  min={200}
-                                  max={240}
-                                  expectedMin={215}
-                                  expectedMax={225}
+                                  min={0}
+                                  max={440}
+                                  expectedMin={365}
+                                  expectedMax={390}
                                   className="h-2"
                                 />
                               </div>
@@ -300,9 +288,9 @@ const Energia = () => {
                                 <ExpectedRangeProgress
                                   value={correnteMediaValue}
                                   min={0}
-                                  max={20}
-                                  expectedMin={9.2}
-                                  expectedMax={11.0}
+                                  max={70}
+                                  expectedMin={0}
+                                  expectedMax={63}
                                   className="h-2"
                                 />
                               </div>
@@ -355,24 +343,24 @@ const Energia = () => {
                           <ExpectedRangeProgress
                             value={maquina.potencia_ativa_total}
                             min={0}
-                            max={maxPotenciaAtivaMock}
+                            max={42}
                             expectedMin={0}
-                            expectedMax={8}
+                            expectedMax={34}
                             className="h-2"
                           />
 
                           <div className="flex items-center justify-between gap-3">
                             <span className="text-xs text-muted-foreground">Aparente</span>
                             <span className="text-xs font-semibold whitespace-nowrap">
-                              {formatNumber(maquina.potencia_aparente_total, 2)} kVA
+                              {formatNumber(maquina.potencia_aparente_total, 2)} VA
                             </span>
                           </div>
                           <ExpectedRangeProgress
                             value={maquina.potencia_aparente_total}
                             min={0}
-                            max={maxPotenciaAparenteMock}
+                            max={42}
                             expectedMin={0}
-                            expectedMax={10}
+                            expectedMax={33}
                             className="h-2"
                           />
                         </div>
