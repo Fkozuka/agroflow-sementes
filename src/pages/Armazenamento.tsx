@@ -4,7 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-const camaras = Array.from({ length: 13 }).map((_, index) => ({
+const camaras = Array.from({ length: 6 }).map((_, index) => ({
   id: index + 1,
   nome: `Câmara ${index + 1}`,
   tempAlta: 18 + (index % 3),
@@ -23,7 +23,7 @@ const Armazenamento = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="w-full">
             <h2 className="text-2xl font-bold text-industrial-primary mb-6">
-              Monitoramento das Câmaras de Armazenamento
+              Monitoramento das temperaturas das Câmaras
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

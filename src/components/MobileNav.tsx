@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, Gauge, Database, Monitor, Droplets, BarChart, ArrowRight } from 'lucide-react';
+import { Menu, Gauge, Database, Monitor, Droplets, BarChart, ArrowRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Secadores', icon: Droplets, path: '/secadores' },
   { name: 'Monitoramento', icon: Monitor, path: '/monitoring' },
   { name: 'Gráficos', icon: BarChart, path: '/charts' },
+  { name: 'Energia', icon: Zap, path: '/energia' },
 ];
 
 const MobileNav: React.FC = () => {

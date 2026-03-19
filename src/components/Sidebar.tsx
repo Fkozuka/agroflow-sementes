@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Gauge, Database, Package, BarChart, Settings, List, Factory } from 'lucide-react';
+import { Gauge, Database, Package, BarChart, Settings, List, Factory, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
@@ -8,6 +8,7 @@ import { useStatusCLP } from '@/hooks/useStatusCLP';
 const sidebarItems = [
   { name: 'Produção', icon: Factory, path: '/producao' },
   { name: 'Armazenamento', icon: Database, path: '/armazenamento' },
+  { name: 'Energia', icon: Zap, path: '/energia' },
   { name: 'Relatórios', icon: BarChart, path: '/relatorios' },
 ];
 
