@@ -298,9 +298,9 @@ const Energia = () => {
                                 <ExpectedRangeProgress
                                   value={correnteMediaValue}
                                   min={0}
-                                  max={70}
+                                  max={35}
                                   expectedMin={0}
-                                  expectedMax={63}
+                                  expectedMax={30}
                                   className="h-2"
                                 />
                               </div>
@@ -353,24 +353,24 @@ const Energia = () => {
                           <ExpectedRangeProgress
                             value={maquina.potencia_ativa_total}
                             min={0}
-                            max={42}
+                            max={25}
                             expectedMin={0}
-                            expectedMax={34}
+                            expectedMax={20}
                             className="h-2"
                           />
 
                           <div className="flex items-center justify-between gap-3">
                             <span className="text-xs text-muted-foreground">Aparente</span>
                             <span className="text-xs font-semibold whitespace-nowrap">
-                              {formatNumber(maquina.potencia_aparente_total, 2)} VA
+                              {formatNumber(maquina.potencia_aparente_total, 2)} kVA
                             </span>
                           </div>
                           <ExpectedRangeProgress
                             value={maquina.potencia_aparente_total}
                             min={0}
-                            max={42}
+                            max={25}
                             expectedMin={0}
-                            expectedMax={33}
+                            expectedMax={20}
                             className="h-2"
                           />
                         </div>
@@ -389,7 +389,7 @@ const Energia = () => {
                           <div>
                             <p className="text-xs text-muted-foreground">Ativa consumida</p>
                             <p className="text-xl font-bold leading-none">
-                              {formatNumber(maquina.energia_ativa_consumida, 3)} kWh
+                              {formatNumber(maquina.energia_ativa_consumida, 1)} kWh
                             </p>
                           </div>
                           <div className="text-right">

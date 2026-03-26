@@ -163,9 +163,7 @@ export const useEnergiaHistorico = (
     seriesFiltered.length > 0 ? seriesFiltered[seriesFiltered.length - 1] : null;
 
   const chartData = useMemo<EnergiaHistoricoChartPoint[]>(() => {
-    const slice = seriesFiltered.slice(Math.max(0, seriesFiltered.length - 30));
-
-    return slice.map((r) => ({
+    return seriesFiltered.map((r) => ({
       time: r.data_hora?.slice(11, 19) ?? '',
       tensaoA: r.tensao_fase_a ?? null,
       tensaoB: r.tensao_fase_b ?? null,

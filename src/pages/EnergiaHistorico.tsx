@@ -212,7 +212,7 @@ const EnergiaHistorico = () => {
                   <Separator />
 
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold">Evolução (últimos ~30 registros)</div>
+                    <div className="text-sm font-semibold">Evolução (todos os registros do período)</div>
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <div className="text-xs font-semibold text-muted-foreground">
