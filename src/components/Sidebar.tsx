@@ -7,7 +7,7 @@ import { useStatusCLP } from '@/hooks/useStatusCLP';
 
 const sidebarItems = [
   { name: 'Produção', icon: Factory, path: '/producao' },
-  { name: 'Armazenamento', icon: Database, path: '/armazenamento' },
+  { name: 'Temperaturas', icon: Database, path: '/temperaturas' },
   { name: 'Energia', icon: Zap, path: '/energia' },
   { name: 'Relatórios', icon: BarChart, path: '/relatorios' },
 ];

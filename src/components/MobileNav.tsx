@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 const navItems = [
   { name: 'Dashboard', icon: Gauge, path: '/' },
   { name: 'Fluxo de Transferência', icon: ArrowRight, path: '/fluxo-transferencia' },
-  { name: 'Armazenamento', icon: Database, path: '/storage' },
+  { name: 'Temperaturas', icon: Database, path: '/temperaturas' },
   { name: 'Secadores', icon: Droplets, path: '/secadores' },
   { name: 'Monitoramento', icon: Monitor, path: '/monitoring' },
   { name: 'Gráficos', icon: BarChart, path: '/charts' },

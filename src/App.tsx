@@ -5,7 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Producao from "./pages/Producao";
-import Armazenamento from "./pages/Armazenamento";
+import Temperaturas from "./pages/Temperaturas";
+import TemperaturasHistorico from "./pages/TemperaturasHistorico";
 import Energia from "./pages/Energia";
 import EnergiaHistorico from "./pages/EnergiaHistorico";
 import NotFound from "./pages/NotFound";
@@ -41,13 +42,30 @@ const App = () => (
               } 
             />
             <Route 
-              path="/armazenamento" 
+              path="/temperaturas" 
               element={
                 <ProtectedRoute>
-                  <Armazenamento />
+                  <Temperaturas />
                 </ProtectedRoute>
               } 
             />
+            <Route
+              path="/temperaturas-historico"
+              element={
+                <ProtectedRoute>
+                  <TemperaturasHistorico />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/temperaturas-historico/:camaraId"
+              element={
+                <ProtectedRoute>
+                  <TemperaturasHistorico />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/armazenamento" element={<Navigate to="/temperaturas" replace />} />
             <Route 
               path="/energia" 
               element={

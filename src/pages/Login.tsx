@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLogin } from "@/hooks/uselogin";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
   username: z.string().min(3, {
@@ -31,6 +32,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { dadosAutenticacao, loading, error, autenticarLogin } = useLogin();
+  const { setAuthenticatedUser } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,12 +48,8 @@ const Login = () => {
       
       // Verifica se a autenticação foi bem-sucedida usando os dados retornados diretamente
       if (authData && authData.length > 0 && authData[0].status === true) {
-        // Salva o estado de autenticação
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userName", values.username);
-        if (authData[0].tipo_usuario) {
-          localStorage.setItem("tipo_usuario", String(authData[0].tipo_usuario));
-        }
+        // Atualiza contexto + persistência para liberar ProtectedRoute sem refresh
+        setAuthenticatedUser(values.username, authData[0].tipo_usuario ?? null);
 
         toast({
           title: "Login bem-sucedido",
