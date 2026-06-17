@@ -11,7 +11,7 @@ export interface DadosIniciarProducao {
   lote: string;
   pesoProduzir: string;
   descMateriaPrima: string;
-  descCodAgrupador: string;
+  gerOficial: string;
   peneira: string;
   pms: string;
   descCodTsi: string;
@@ -34,7 +34,7 @@ export const useIniciarProducao = () => {
           lote: String(dados.lote ?? ''),
           pesoProduzir: String(dados.pesoProduzir ?? ''),
           descMateriaPrima: String(dados.descMateriaPrima ?? ''),
-          descCodAgrupador: String(dados.descCodAgrupador ?? ''),
+          gerOficial: String(dados.gerOficial ?? ''),
           peneira: String(dados.peneira ?? ''),
           pms: String(dados.pms ?? ''),
           descCodTsi: String(dados.descCodTsi ?? ''),

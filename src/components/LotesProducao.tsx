@@ -213,7 +213,7 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
         lote: String(item.lote ?? ''),
         pesoProduzir: String(item.pesoProduzir ?? ''),
         descMateriaPrima: String(item.descMateriaPrima ?? ''),
-        descCodAgrupador: String(item.descCodAgrupador ?? ''),
+        gerOficial: String(item.gerOficial ?? ''),
         peneira: String(item.peneira ?? ''),
         pms: String(item.pms ?? ''),
         descCodTsi: String(item.descCodTsi ?? ''),

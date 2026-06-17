@@ -11,6 +11,8 @@ import Energia from "./pages/Energia";
 import EnergiaHistorico from "./pages/EnergiaHistorico";
 import Expedicao from "./pages/Expedicao";
 import Monitoramento from "./pages/Monitoramento";
+import Tanques from "./pages/Tanques";
+import TanquesHistorico from "./pages/TanquesHistorico";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthProvider } from "./hooks/use-auth";
@@ -89,6 +91,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Monitoramento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tanques"
+              element={
+                <ProtectedRoute>
+                  <Tanques />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tanques-historico"
+              element={
+                <ProtectedRoute>
+                  <TanquesHistorico />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tanques-historico/:maquina"
+              element={
+                <ProtectedRoute>
+                  <TanquesHistorico />
                 </ProtectedRoute>
               }
             />
