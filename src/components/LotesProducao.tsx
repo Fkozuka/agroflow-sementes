@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { 
-  Edit, 
-  Trash2, 
   Play,
-  Package
+  Package,
+  CheckCircle
 } from 'lucide-react';
 import {
   Table,
@@ -38,6 +36,7 @@ import {
 } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useIniciarProducao } from '@/hooks/useIniciarProducao';
 
 interface LotesProducaoProps {
   filteredData: any[];
@@ -61,6 +60,7 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
   carregarDadosListaProducao,
 }) => {
   const { toast } = useToast();
+  const { enviarLoteIniciarProducao } = useIniciarProducao();
   
   const tipoUsuario = typeof window !== 'undefined' ? localStorage.getItem('tipo_usuario') : null;
   const podeManipular =
@@ -73,8 +73,6 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
   // Estados para os diálogos de confirmação
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showConfirmDialogSeparacao, setShowConfirmDialogSeparacao] = useState(false);
-  const [showConfirmDialogExcluir, setShowConfirmDialogExcluir] = useState(false);
-  const [observacaoExcluir, setObservacaoExcluir] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   // Calcular dados paginados
@@ -198,33 +196,52 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
     setShowConfirmDialog(true);
   };
 
-  const confirmarIniciarProducao = async () => {
-    try {
-      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '2');
-      if (resultado && resultado.statusErro === true) {
-        toast({
-          title: 'Falha ao iniciar produção',
-          description: 'Não foi possível atualizar o status.',
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Produção iniciada',
-          description: `Produção iniciada para o Nº Planej. ${selectedItem?.numPlanej}`,
-        });
+  const confirmarIniciarProducao = () => {
+    const item = selectedItem;
+    if (!item) return;
+
+    const numPlanej = String(item.numPlanej ?? '');
+
+    setShowConfirmDialog(false);
+    setSelectedItem(null);
+
+    void Promise.allSettled([
+      carregarStatusComandos(numPlanej, '2'),
+      enviarLoteIniciarProducao({
+        numPlanej,
+        numMaquina: String(item.numMaquina ?? ''),
+        lote: String(item.lote ?? ''),
+        pesoProduzir: String(item.pesoProduzir ?? ''),
+        descMateriaPrima: String(item.descMateriaPrima ?? ''),
+        descCodAgrupador: String(item.descCodAgrupador ?? ''),
+        peneira: String(item.peneira ?? ''),
+        pms: String(item.pms ?? ''),
+        descCodTsi: String(item.descCodTsi ?? ''),
+      }),
+    ]).then(([resultadoStatus]) => {
+      const falhaStatus =
+        resultadoStatus.status === 'rejected' ||
+        (resultadoStatus.status === 'fulfilled' && resultadoStatus.value?.statusErro === true);
+
+      if (!falhaStatus) {
         setTimeout(() => carregarDadosListaProducao(), 500);
       }
-    } catch (e) {
-      toast({ title: 'Erro de conexão', description: 'Falha na comunicação com o servidor.', variant: 'destructive' });
-    } finally {
-      setShowConfirmDialog(false);
-      setSelectedItem(null);
-    }
+    });
   };
 
   const cancelarIniciarProducao = () => {
     setShowConfirmDialog(false);
     setSelectedItem(null);
+  };
+
+  const handleFinalizarProducao = (item: any) => {
+    const numPlanej = String(item?.numPlanej ?? '');
+
+    void carregarStatusComandos(numPlanej, '5').then((resultado) => {
+      if (resultado?.statusErro !== true) {
+        setTimeout(() => carregarDadosListaProducao(), 500);
+      }
+    });
   };
 
   const handleIniciarSeparacao = (item: any) => {
@@ -259,53 +276,6 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
   const cancelarIniciarSeparacao = () => {
     setShowConfirmDialogSeparacao(false);
     setSelectedItem(null);
-  };
-
-  const handleExcluirProducao = (item: any) => {
-    setSelectedItem(item);
-    setObservacaoExcluir('');
-    setShowConfirmDialogExcluir(true);
-  };
-
-  const confirmarExcluirProducao = async () => {
-    if (!observacaoExcluir.trim()) {
-      toast({
-        title: "Observação obrigatória",
-        description: "Por favor, informe o motivo da exclusão.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const resultado = await carregarStatusComandos(String(selectedItem?.numPlanej ?? ''), '4', observacaoExcluir);
-      if (resultado && resultado.statusErro === true) {
-        toast({
-          title: 'Falha ao excluir produção',
-          description: 'Não foi possível atualizar o status.',
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Produção excluída',
-          description: `Exclusão solicitada para o Nº Planej. ${selectedItem?.numPlanej}`,
-          variant: 'destructive',
-        });
-        setTimeout(() => carregarDadosListaProducao(), 500);
-      }
-    } catch (e) {
-      toast({ title: 'Erro de conexão', description: 'Falha na comunicação com o servidor.', variant: 'destructive' });
-    } finally {
-      setShowConfirmDialogExcluir(false);
-      setSelectedItem(null);
-      setObservacaoExcluir('');
-    }
-  };
-
-  const cancelarExcluirProducao = () => {
-    setShowConfirmDialogExcluir(false);
-    setSelectedItem(null);
-    setObservacaoExcluir('');
   };
 
   return (
@@ -622,37 +592,12 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
                                   </Button>
                                   <Button 
                                     size="sm" 
-                                    variant="outline"
-                                    className="border-gray-300 hover:bg-gray-50"
-                                    disabled={!podeManipular}
-                                    onClick={async (e) => {
-                                      if (!podeManipular) return;
-                                      e.stopPropagation();
-                                      try {
-                                        const resultado = await carregarStatusComandos(String(item?.numPlanej ?? ''), '3');
-                                        if (resultado && resultado.statusErro === true) {
-                                          toast({ title: 'Falha ao editar', description: 'Não foi possível atualizar o status.', variant: 'destructive' });
-                                        } else {
-                                          toast({ title: 'Editar', description: `Status atualizado para edição (${item?.numPlanej}).` });
-                                          setTimeout(() => carregarDadosListaProducao(), 500);
-                                        }
-                                      } catch (err) {
-                                        toast({ title: 'Erro de conexão', description: 'Falha de comunicação com o SAP.', variant: 'destructive' });
-                                      }
-                                    }}
-                                  >
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Editar
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    className="border-red-300 text-red-600 hover:bg-red-50"
-                                    onClick={() => podeManipular && handleExcluirProducao(item)}
+                                    className="bg-emerald-700 hover:bg-emerald-800 text-white"
+                                    onClick={() => podeManipular && handleFinalizarProducao(item)}
                                     disabled={!podeManipular}
                                   >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Excluir
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Finalizar Produção
                                   </Button>
                                 </div>
                               </div>
@@ -731,34 +676,37 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Início de Produção</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja iniciar a produção <strong>{selectedItem?.numPlanej}</strong>?
-              <br /><br />
-              <strong>Detalhes da produção:</strong>
-              <br />
-              • Ordem: {selectedItem?.ordemPrd}
-              <br />
-              • Materia Prima: {selectedItem?.descMateriaPrima}
-              <br />
-              • Produto: {selectedItem?.descProdutoAcabado}
-              <br />
-              • Quantidade: {selectedItem?.qtdeProduzir} {selectedItem?.umb}
-              <br />
-              • Máquina: {selectedItem?.numMaquina}
-              <br />
-              • Prioridade: {selectedItem?.descPrioridade}
+            <AlertDialogDescription asChild>
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  Tem certeza que deseja iniciar a produção do planejamento{' '}
+                  <strong className="text-foreground">{selectedItem?.numPlanej}</strong>?
+                </p>
+                <p className="mt-4 font-semibold text-foreground">Dados que serão enviados:</p>
+                <ul className="mt-2 space-y-1 list-none">
+                  <li>• Nº Planej.: {selectedItem?.numPlanej || '-'}</li>
+                  <li>• Máquina: {selectedItem?.numMaquina || '-'}</li>
+                  <li>• Lote: {selectedItem?.lote || '-'}</li>
+                  <li>• Peso produzir: {selectedItem?.pesoProduzir || '-'}</li>
+                  <li>• Matéria prima: {selectedItem?.descMateriaPrima || '-'}</li>
+                  <li>• Agrupador: {selectedItem?.descCodAgrupador || '-'}</li>
+                  <li>• Peneira: {selectedItem?.peneira || '-'}</li>
+                  <li>• PMS: {selectedItem?.pms || '-'}</li>
+                  <li>• Tratamento (TSI): {selectedItem?.descCodTsi || '-'}</li>
+                </ul>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={cancelarIniciarProducao}>
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
               onClick={confirmarIniciarProducao}
-              className="bg-green-600 hover:bg-green-700"
             >
               Confirmar Início
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -795,65 +743,6 @@ const LotesProducao: React.FC<LotesProducaoProps> = ({
               className="bg-blue-600 hover:bg-blue-700"
             >
               Confirmar Separação
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Popup de confirmação para excluir Produção */}
-      <AlertDialog open={showConfirmDialogExcluir} onOpenChange={setShowConfirmDialogExcluir}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão de Produção</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir a produção da ordem de produção <strong>{selectedItem?.numPlanej}</strong>?
-              <br /><br />
-              <strong>Detalhes da produção:</strong>
-              <br />
-              • Ordem: {selectedItem?.ordemPrd}
-              <br />
-              • Materia Prima: {selectedItem?.descMateriaPrima}
-              <br />
-              • Produto: {selectedItem?.descProdutoAcabado}
-              <br />
-              • Quantidade: {selectedItem?.qtdeProduzir} {selectedItem?.umb}
-              <br />
-              • Máquina: {selectedItem?.numMaquina}
-              <br />
-              • Prioridade: {selectedItem?.descPrioridade}
-              <br /><br />
-              <strong className="text-red-600">Esta ação não pode ser desfeita!</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="px-6 py-4">
-            <label className="block text-sm font-medium mb-2">
-              Motivo da exclusão <span className="text-red-600">*</span>
-            </label>
-            <Textarea
-              placeholder="Descreva o motivo da exclusão da produção..."
-              value={observacaoExcluir}
-              onChange={(e) => setObservacaoExcluir(e.target.value)}
-              maxLength={255}
-              className="min-h-[100px]"
-              required
-            />
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-gray-500">
-                O preenchimento deste campo é obrigatório para confirmar a exclusão.
-              </p>
-              <span className="text-xs text-gray-400">{observacaoExcluir.length}/255</span>
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelarExcluirProducao}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmarExcluirProducao}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={!observacaoExcluir.trim()}
-            >
-              Confirmar Exclusão
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -9,6 +9,8 @@ import Temperaturas from "./pages/Temperaturas";
 import TemperaturasHistorico from "./pages/TemperaturasHistorico";
 import Energia from "./pages/Energia";
 import EnergiaHistorico from "./pages/EnergiaHistorico";
+import Expedicao from "./pages/Expedicao";
+import Monitoramento from "./pages/Monitoramento";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthProvider } from "./hooks/use-auth";
@@ -73,6 +75,22 @@ const App = () => (
                   <Energia />
                 </ProtectedRoute>
               } 
+            />
+            <Route
+              path="/expedicao"
+              element={
+                <ProtectedRoute>
+                  <Expedicao />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/monitoramento"
+              element={
+                <ProtectedRoute>
+                  <Monitoramento />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/energia-historico"

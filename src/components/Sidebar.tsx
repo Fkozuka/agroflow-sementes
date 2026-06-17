@@ -9,6 +9,8 @@ const sidebarItems = [
   { name: 'Produção', icon: Factory, path: '/producao' },
   { name: 'Temperaturas', icon: Database, path: '/temperaturas' },
   { name: 'Energia', icon: Zap, path: '/energia' },
+  { name: 'Expedição', icon: Package, path: '/expedicao' },
+  { name: 'Monitoramento', icon: List, path: '/monitoramento' },
   { name: 'Relatórios', icon: BarChart, path: '/relatorios' },
 ];
 
